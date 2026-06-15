@@ -1,0 +1,53 @@
+ShadowMac
+=========
+
+ShadowMac is a macOS port and modification of "Shadow AI", originally created by
+shadowdoggie (https://github.com/shadowdoggie/shadow-ai).
+
+Original work
+-------------
+  Name:    Shadow AI
+  Author:  shadowdoggie and contributors
+  Source:  https://github.com/shadowdoggie/shadow-ai
+  License: GNU Affero General Public License, version 3 (AGPL-3.0)
+
+License of this derivative work
+-------------------------------
+This modified version ("ShadowMac"), maintained by Lexith-AI, is also licensed
+under the GNU Affero General Public License, version 3. See the LICENSE file for
+the full text.
+
+As required by the AGPL:
+  * The complete corresponding source code of this modified version is published
+    in this repository.
+  * Any public or network-hosted deployment of this software must continue to
+    offer its complete source code to its users under the same AGPL-3.0 license.
+  * This NOTICE, the attribution above, and the LICENSE file must be retained in
+    all copies and derivative works.
+
+ShadowMac is an independent project and is NOT affiliated with, endorsed by, or
+sponsored by the original author. "Shadow AI" and any related names are used
+only to credit the original work (nominative use).
+
+Significant changes made in this fork (macOS port)
+--------------------------------------------------
+  * Replaced the Windows PowerShell backend (run.ps1's HTTP listener) with a
+    Node.js server (server.js) implementing the same local /api/* surface.
+  * Added a macOS launcher (run.sh), replacing run.ps1 / run.bat.
+  * Run model-issued commands through PowerShell 7 (pwsh) on macOS, with a zsh
+    fallback (runtime/pwsh is git-ignored and fetched locally).
+  * Added tools/prepare-searxng.sh to build the local SearXNG search engine on
+    macOS, replacing the Windows tools/prepare-searxng.ps1.
+  * Reworked the web-search endpoint URL handling and added cold-start retry;
+    adjusted weather, Google OAuth, file, and proxy endpoints for portable Node.
+  * Enabled voice barge-in and a fresh-start-on-manual-disconnect behavior.
+  * Re-themed the UI (electric-violet) and renamed the product to "ShadowMac".
+
+Not ported
+----------
+  * Windows desktop GUI automation (desktop_controller.ps1 — uses the Win32 API).
+  * The global push-to-talk hotkey (Windows-only).
+
+The original Windows-specific files (run.ps1, run.bat, desktop_controller.ps1,
+installer/, etc.) are retained in this repository for transparency and
+attribution to the original project.

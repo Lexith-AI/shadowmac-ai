@@ -1,0 +1,43 @@
+{
+  "name": "shadowmac",
+  "version": "1.8.4",
+  "description": "ShadowMac \u2014 a macOS port of Shadow AI (shadowdoggie/shadow-ai): real-time voice AI companion with memory, web search, and background subagents.",
+  "main": "scheduler.js",
+  "scripts": {
+    "start": "powershell -NoProfile -ExecutionPolicy Bypass -File ./run.ps1",
+    "test": "vitest run",
+    "test:soak": "vitest run tests/backend_runtime_smoke.test.js",
+    "test:watch": "vitest",
+    "start:mac": "./run.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lexith-AI/shadowmac-ai.git"
+  },
+  "keywords": [
+    "macos",
+    "voice-assistant",
+    "ai-companion",
+    "gemini",
+    "voice",
+    "windows"
+  ],
+  "author": "Lexith-AI",
+  "license": "AGPL-3.0-or-later",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Lexith-AI/shadowmac-ai/issues"
+  },
+  "homepage": "https://github.com/Lexith-AI/shadowmac-ai#readme",
+  "dependencies": {
+    "playwright": "^1.60.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.7"
+  },
+  "forkedFrom": "https://github.com/shadowdoggie/shadow-ai",
+  "contributors": [
+    "shadowdoggie (original author of Shadow AI, https://github.com/shadowdoggie/shadow-ai)"
+  ],
+  "originalAuthor": "shadowdoggie"
+}

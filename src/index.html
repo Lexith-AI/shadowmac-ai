@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>ShadowMac</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='18' fill='%23ff5e3a'/%3E%3C/svg%3E">
+  <!-- Google Fonts: Outfit and Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css?v=release150c-20260530">
+</head>
+<body>
+
+  <!-- Main Canvas for Organic Visualizer -->
+  <canvas id="visualizer-canvas"></canvas>
+
+  <!-- Glassmorphic Dashboard Layout -->
+  <div class="app-container">
+    <div id="subagent-indicator" class="subagent-indicator idle" title="No background subagents running" aria-live="polite">
+      <span class="subagent-indicator-dot" aria-hidden="true"></span>
+      <span id="subagent-indicator-count" class="subagent-indicator-count">0</span>
+      <span id="subagent-indicator-label" class="subagent-indicator-label">subagents active</span>
+    </div>
+    
+    <!-- Top Navigation Header -->
+    <header class="main-header">
+      <div class="logo-area">
+        <span class="logo-dot"></span>
+        <h1 class="logo-text">shadowmac</h1>
+      </div>
+      <div class="header-controls">
+        <span id="model-badge" class="status-badge hidden" style="background: rgba(255,255,255,0.05); color: #aaa; font-size: 0.75rem; border-color: transparent;"></span>
+        <span id="connection-badge" class="status-badge state-disconnected">Disconnected</span>
+        <button id="btn-memory" class="icon-button" title="Memory Graph" aria-label="Memory Graph">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+        </button>
+        <button id="btn-skills" class="icon-button" title="Skills" aria-label="Skills">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"></path>
+          </svg>
+        </button>
+        <button id="btn-integrations" class="icon-button" title="Integrations" aria-label="Integrations">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+        </button>
+        <button id="btn-diagnostics" class="icon-button" title="Diagnostics" aria-label="Diagnostics">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"></path>
+            <path d="M7 16l3-4 3 2 4-7"></path>
+          </svg>
+        </button>
+        <button id="btn-settings" class="icon-button" title="Settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <section id="diagnostics-panel" class="diagnostics-panel hidden" aria-live="polite">
+      <div class="diagnostics-row"><span>Turn</span><strong id="diag-turn-state">idle</strong></div>
+      <div class="diagnostics-row"><span>Socket</span><strong id="diag-socket-state">closed</strong></div>
+      <div class="diagnostics-row"><span>Queue</span><strong id="diag-notice-queue">0</strong></div>
+      <div class="diagnostics-row"><span>Lane</span><strong id="diag-next-notice">none</strong></div>
+      <div class="diagnostics-row"><span>Subagents</span><strong id="diag-subagents">0 active</strong></div>
+      <div class="diagnostics-row"><span>Last tool</span><strong id="diag-last-tool">none</strong></div>
+      <div class="diagnostics-reason" id="diag-notice-reason">No pending notices.</div>
+    </section>
+
+    <!-- Main Visual Interaction Zone -->
+    <main class="interaction-zone">
+      <!-- The breathing blob visualizer is full screen in background. -->
+      <!-- In the center we can display interactive status/hints -->
+      <div class="interaction-overlay">
+        <div id="visualizer-status" class="visualizer-status-text">Click Connect to talk to ShadowMac</div>
+      </div>
+    </main>
+
+    <!-- Bottom Audio Panel & Transcript -->
+    <footer class="interaction-footer">
+      <div class="transcript-container" aria-hidden="true">
+        <div id="transcript-feed" class="transcript-feed"></div>
+      </div>
+
+      <!-- Footer Control Panel -->
+      <div class="controls-panel">
+        <button id="btn-toggle-mic" class="control-button mic-button disabled" disabled title="Mute Microphone">
+          <svg id="icon-mic-on" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+          <svg id="icon-mic-off" class="hidden" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path><path d="M17 11a7 7 0 0 1-1.12 3.82m-3.56 1.83A7 7 0 0 1 5 11v-1"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        </button>
+
+        <button id="btn-share-screen" class="control-button screen-button disabled" disabled title="Share Screen">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+        </button>
+
+        <button id="btn-new-session" class="control-button session-button hidden" title="Start New Session (Clear Context)">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+
+        <button id="btn-connect" class="control-button connect-button">
+          <span class="btn-text">Connect</span>
+        </button>
+
+        <button id="btn-interrupt" class="control-button interrupt-button hidden" title="Interrupt ShadowMac">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect></svg>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Glassmorphic Settings Modal -->
+  <div id="settings-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button id="btn-close-settings" class="close-button">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- API Key Field -->
+        <div class="form-group">
+          <label for="input-api-key">Gemini API Key</label>
+          <div class="input-with-toggle">
+            <input type="text" class="masked-input" id="input-api-key" placeholder="AIzaSy..." autocomplete="off">
+            <button id="btn-toggle-key-visibility" class="text-button" type="button">Show</button>
+          </div>
+          <span class="field-hint">You can get an API key from <a href="https://aistudio.google.com/api-keys" target="_blank">Google AI Studio</a>.</span>
+        </div>
+
+        <!-- Microphone -->
+        <div class="form-group">
+          <label for="select-mic-device">Microphone</label>
+          <select id="select-mic-device">
+            <option value="">Default microphone</option>
+          </select>
+          <span class="field-hint" style="display:block;margin-top:4px;">Which mic ShadowMac listens through. If names show as "Microphone 1/2", connect once to grant mic access, then reopen Settings.</span>
+        </div>
+
+        <!-- Push to Talk -->
+        <div class="form-group">
+          <label>Push to Talk</label>
+          <label class="checkbox-row" for="input-ptt-enabled">
+            <input type="checkbox" id="input-ptt-enabled">
+            <span>Only listen while I hold a key</span>
+          </label>
+          <span class="field-hint" style="display:block;margin-top:4px;">Works even when another window is focused &mdash; ideal for a mouse button mapped to F13&ndash;F15 in G&nbsp;HUB or similar mouse software.</span>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+            <button id="btn-ptt-capture" class="secondary-button" type="button">Set key</button>
+            <span id="ptt-key-label" class="field-hint" style="margin:0;">No key set</span>
+          </div>
+        </div>
+
+        <!-- Voice Selection -->
+        <div class="form-group">
+          <label for="select-voice">Voice</label>
+          <div class="voice-select-row">
+            <select id="select-voice">
+              <option value="Zephyr">Zephyr (Bright)</option>
+              <option value="Puck">Puck (Upbeat)</option>
+              <option value="Charon">Charon (Informative)</option>
+              <option value="Kore">Kore (Firm)</option>
+              <option value="Fenrir">Fenrir (Excitable)</option>
+              <option value="Leda" selected>Leda (Youthful)</option>
+              <option value="Orus">Orus (Firm)</option>
+              <option value="Aoede">Aoede (Breezy)</option>
+              <option value="Callirrhoe">Callirrhoe (Easy-going)</option>
+              <option value="Autonoe">Autonoe (Bright)</option>
+              <option value="Enceladus">Enceladus (Breathy)</option>
+              <option value="Iapetus">Iapetus (Clear)</option>
+              <option value="Umbriel">Umbriel (Easy-going)</option>
+              <option value="Algieba">Algieba (Smooth)</option>
+              <option value="Despina">Despina (Smooth)</option>
+              <option value="Erinome">Erinome (Clear)</option>
+              <option value="Algenib">Algenib (Gravelly)</option>
+              <option value="Rasalgethi">Rasalgethi (Informative)</option>
+              <option value="Laomedeia">Laomedeia (Upbeat)</option>
+              <option value="Achernar">Achernar (Soft)</option>
+              <option value="Alnilam">Alnilam (Firm)</option>
+              <option value="Schedar">Schedar (Even)</option>
+              <option value="Gacrux">Gacrux (Mature)</option>
+              <option value="Pulcherrima">Pulcherrima (Forward)</option>
+              <option value="Achird">Achird (Friendly)</option>
+              <option value="Zubenelgenubi">Zubenelgenubi (Casual)</option>
+              <option value="Vindemiatrix">Vindemiatrix (Gentle)</option>
+              <option value="Sadachbia">Sadachbia (Lively)</option>
+              <option value="Sadaltager">Sadaltager (Knowledgeable)</option>
+              <option value="Sulafat">Sulafat (Warm)</option>
+            </select>
+            <button id="btn-favorite-voice" class="favorite-voice-button" type="button" title="Pin voice to top" aria-label="Pin voice to top">
+              <span aria-hidden="true">&#9734;</span>
+            </button>
+            <button id="btn-preview-voice" class="voice-preview-button" type="button" title="Hear this voice" aria-label="Hear this voice">
+              <span aria-hidden="true">&#9654;</span>
+            </button>
+          </div>
+          <span class="field-hint" style="display:block;margin-top:4px;">Tap &#9654; to hear the selected voice.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="input-assistant-name">Assistant Name</label>
+          <input type="text" id="input-assistant-name" maxlength="40" placeholder="ShadowMac">
+          <span class="field-hint" style="display:block;margin-top:4px;">Changes what the voice model calls itself. The app/project can still be ShadowMac.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="input-user-name">Your Name</label>
+          <input type="text" id="input-user-name" maxlength="40" placeholder="Optional — what should it call you?">
+          <span class="field-hint" style="display:block;margin-top:4px;">Optional. What the assistant calls you. Leave blank and it'll just learn your name as you talk.</span>
+        </div>
+
+        <!-- Accent Selection -->
+        <div class="form-group">
+          <label for="select-accent">Speaking Accent</label>
+          <select id="select-accent">
+            <option value="neutral" selected>Neutral (Default)</option>
+            <option value="southern_american">Southern American</option>
+            <option value="brooklyn_american">Brooklyn / NYC</option>
+            <option value="australian">Australian</option>
+            <option value="british">British</option>
+            <option value="russian">Russian-accented English</option>
+            <option value="french">French-accented English</option>
+            <option value="latina_latino">Latina / Latino-accented English</option>
+          </select>
+          <span class="field-hint" style="display:block;margin-top:4px;">Changing accent requires reconnecting to start a new voice session.</span>
+        </div>
+
+        <!-- Model Selection -->
+        <div class="form-group">
+          <label for="select-model">Model Selection</label>
+          <select id="select-model">
+            <option value="models/gemini-3.1-flash-live-preview" selected>Gemini 3.1 Flash Live (Current)</option>
+            <option value="models/gemini-2.5-flash-native-audio-preview-12-2025">Gemini 2.5 Flash Native Audio (Fallback)</option>
+          </select>
+        </div>
+
+        <!-- Live Reasoning Selection -->
+        <div class="form-group">
+          <label for="select-live-thinking-level">Voice Reasoning</label>
+          <select id="select-live-thinking-level">
+            <option value="minimal">Minimal (Fastest)</option>
+            <option value="low">Low (Faster)</option>
+            <option value="medium" selected>Medium (Balanced)</option>
+            <option value="high">High (Smartest)</option>
+            <option value="auto">Auto (Provider Default)</option>
+          </select>
+          <span class="field-hint" style="display:block;margin-top:4px;">Medium is the balanced default — smart enough to stay accurate without much delay. Minimal is fastest but hallucinates more; High is smartest but slower and may refuse more. Lean on background subagents for heavy planning/research.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Subagent Prompt Brain</label>
+          <label class="checkbox-row" for="input-smart-main-routing-enabled">
+            <input type="checkbox" id="input-smart-main-routing-enabled">
+            <span>Refine subagent prompts and steering with the selected subagent model</span>
+          </label>
+          <span class="field-hint" style="display:block;margin-top:4px;">Gemini stays direct for normal chat. When starting or steering a background subagent, the selected subagent provider/model rewrites the task first.</span>
+        </div>
+
+        <!-- Proactive Mode Selection -->
+        <div class="form-group">
+          <label for="select-proactive-profile">Proactive Mode</label>
+          <label class="checkbox-row" for="input-proactive-enabled">
+            <input type="checkbox" id="input-proactive-enabled" checked>
+            <span>Enable proactive companion mode</span>
+          </label>
+          <select id="select-proactive-profile">
+            <option value="quiet">Quiet</option>
+            <option value="balanced" selected>Balanced</option>
+            <option value="engaged">Engaged</option>
+            <option value="lively">Lively (2x Engaged)</option>
+            <option value="immersive">Immersive (3x Engaged)</option>
+            <option value="hyper">Hyper (4x Engaged)</option>
+            <option value="unhinged">Unhinged (5x Engaged)</option>
+          </select>
+          <span class="field-hint" style="display:block;margin-top:4px;">Use Immersive for movie watching or shared-screen sessions where the assistant should react much more often.</span>
+        </div>
+
+        <!-- Subagent Configuration -->
+        <div class="form-group">
+          <label for="select-subagent-provider">Subagent Provider</label>
+          <select id="select-subagent-provider">
+            <option value="gemini" selected>Google Gemini (Native)</option>
+            <option value="openai_codex">OpenAI Codex OAuth</option>
+            <option value="minimax">MiniMax API</option>
+            <option value="moonshot">Canopy Wave API</option>
+            <option value="ollama">Ollama Cloud</option>
+            <option value="custom_openai">Custom (OpenAI-compatible)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Subagent Model</label>
+          
+          <select id="select-subagent-model-gemini" class="subagent-model-select">
+            <option value="models/gemini-3.1-flash-lite" selected>Gemini 3.1 Flash Lite (Default — best free limits)</option>
+            <option value="models/gemini-3.1-flash">Gemini 3.1 Flash</option>
+            <option value="models/gemini-2.5-flash">Gemini 2.5 Flash</option>
+          </select>
+
+          <select id="select-subagent-model-openai-codex" class="subagent-model-select" style="display: none;">
+            <option value="gpt-5.5" selected>GPT-5.5</option>
+            <option value="gpt-5.4">GPT-5.4</option>
+          </select>
+          
+          <select id="select-subagent-model-minimax" class="subagent-model-select" style="display: none;">
+            <option value="minimax-m2.7" selected>MiniMax M2.7</option>
+            <option value="minimax-m2.7-highspeed">MiniMax M2.7 Highspeed</option>
+          </select>
+
+          <select id="select-subagent-model-moonshot" class="subagent-model-select" style="display: none;">
+            <option value="moonshotai/kimi-k2.6" selected>Kimi k2.6 (Canopy Wave)</option>
+          </select>
+
+          <select id="select-subagent-model-ollama" class="subagent-model-select" style="display: none;">
+            <option value="kimi-k2.6" selected>Kimi k2.6 (vision, tools, thinking)</option>
+            <option value="deepseek-v4-flash">DeepSeek v4 Flash (tools, thinking)</option>
+            <option value="deepseek-v4-pro">DeepSeek v4 Pro (tools, thinking)</option>
+            <option value="gemma4">Gemma 4 (vision, tools, thinking, audio)</option>
+            <option value="qwen3.5">Qwen 3.5 (vision, tools, thinking)</option>
+            <option value="glm-5.1">GLM 5.1 (tools, thinking)</option>
+            <option value="minimax-m2.7">MiniMax M2.7 (tools, thinking)</option>
+            <option value="nemotron-3-super">Nemotron 3 Super 120B (tools, thinking)</option>
+            <option value="glm-5">GLM 5 744B (tools, thinking)</option>
+            <option value="minimax-m2.5">MiniMax M2.5 (tools, thinking)</option>
+            <option value="qwen3-coder-next">Qwen3 Coder Next (tools)</option>
+            <option value="glm-4.7">GLM 4.7 (tools, thinking)</option>
+            <option value="gemini-3-flash-preview">Gemini 3 Flash Preview (vision, tools, thinking)</option>
+            <option value="minimax-m2.1">MiniMax M2.1 (tools)</option>
+            <option value="deepseek-v3.2">DeepSeek v3.2 (tools, thinking)</option>
+            <option value="ministral-3">Ministral 3 (vision, tools)</option>
+            <option value="devstral-small-2">Devstral Small 2 24B (vision, tools)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="group-subagent-reasoning-mode" style="display: none;">
+          <label for="select-subagent-reasoning-mode">Subagent Reasoning Mode</label>
+          <select id="select-subagent-reasoning-mode">
+            <option value="none">None</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high" selected>High</option>
+            <option value="xhigh">XHigh</option>
+          </select>
+          <span class="field-hint" style="display:block;margin-top:4px;">Only applies to GPT-5.5 and GPT-5.4 Codex subagents.</span>
+        </div>
+
+        <div class="form-group" id="group-openai-codex-auth" style="display: none;">
+          <label>OpenAI Codex Login</label>
+          <div class="codex-auth-row">
+            <div id="openai-codex-status-badge" class="integration-status-badge integration-disconnected">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span id="openai-codex-status-text">Disconnected</span>
+            </div>
+            <button id="btn-openai-codex-login" class="secondary-button" type="button">Login with Codex</button>
+            <button id="btn-openai-codex-logout" class="danger-button hidden" type="button">Logout</button>
+          </div>
+          <span id="openai-codex-status-details" class="field-hint" style="display:block;margin-top:4px;">Codex login status has not been checked yet.</span>
+        </div>
+
+        <div class="form-group" id="group-minimax-key" style="display: none;">
+          <label for="input-minimax-key">MiniMax API Key</label>
+          <input type="text" class="masked-input" id="input-minimax-key" placeholder="Enter MiniMax API Key" autocomplete="off">
+        </div>
+
+        <div class="form-group" id="group-moonshot-key" style="display: none;">
+          <label for="input-moonshot-key">Canopy Wave API Key</label>
+          <input type="text" class="masked-input" id="input-moonshot-key" placeholder="Enter Canopy Wave API Key" autocomplete="off">
+        </div>
+
+        <div class="form-group" id="group-ollama-settings" style="display: none;">
+          <label for="input-ollama-key">Ollama Cloud API Key</label>
+          <input type="text" class="masked-input" id="input-ollama-key" placeholder="Enter Ollama Cloud API Key" autocomplete="off">
+        </div>
+
+
+        <div class="form-group" id="group-custom-settings" style="display: none;">
+          <label for="input-custom-endpoint">Custom API Base URL (OpenAI-compatible)</label>
+          <input type="text" id="input-custom-endpoint" placeholder="http://localhost:8080/v1" autocomplete="off">
+          <label for="input-custom-api-key" style="display:block;margin-top:10px;">API Key (optional)</label>
+          <input type="text" class="masked-input" id="input-custom-api-key" placeholder="Leave blank if your endpoint needs no key" autocomplete="off">
+          <label for="input-custom-model" style="display:block;margin-top:10px;">Model</label>
+          <input type="text" id="input-custom-model" list="datalist-custom-models" placeholder="model name (e.g. from your server)" autocomplete="off">
+          <datalist id="datalist-custom-models"></datalist>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+            <button id="btn-refresh-custom-models" class="secondary-button" type="button">Fetch models</button>
+            <span id="custom-status" class="field-hint" style="margin:0;">Enter your endpoint, then Fetch models (optional).</span>
+          </div>
+          <span class="field-hint" style="display:block;margin-top:6px;">
+            For any OpenAI-compatible API — a paid hosted provider or your own gateway. Point at its base URL (usually ending in <code>/v1</code>). ShadowMac calls <code>/chat/completions</code> and tries <code>/models</code> to auto-fill the list; if the endpoint doesn't expose <code>/models</code>, just type the model name. Use a model with a generous context window — ShadowMac's subagent prompt + tools are large.
+          </span>
+        </div>
+
+        <!-- SearXNG Search Configuration -->
+        <div class="form-group">
+          <label for="input-searxng-search-url">SearXNG URL</label>
+          <input type="text" id="input-searxng-search-url" placeholder="http://127.0.0.1/search" autocomplete="off">
+          <span class="field-hint" style="display:block;margin-top:4px;">Used by Gemini and subagent web search tools.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="input-searxng-search-port">SearXNG Port</label>
+          <input type="number" id="input-searxng-search-port" min="1" max="65535" placeholder="8888" autocomplete="off">
+          <span class="field-hint" style="display:block;margin-top:4px;">Local SearXNG port. Default: 8888.</span>
+        </div>
+
+        <!-- Memory Backup Configuration -->
+        <div class="form-group">
+          <label for="select-memory-backup">Automated Memory Backups</label>
+          <label class="checkbox-row" for="input-memory-backup-enabled">
+            <input type="checkbox" id="input-memory-backup-enabled">
+            <span>Enable automatic memory backups</span>
+          </label>
+          <select id="select-memory-backup-interval">
+            <option value="5">Every 5 minutes</option>
+            <option value="60">Every 60 minutes</option>
+            <option value="720">Every 12 hours</option>
+            <option value="1440">Every 24 hours</option>
+            <option value="custom">Custom interval...</option>
+          </select>
+          <div id="memory-backup-custom-group" class="hidden" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+            <input type="number" id="input-memory-backup-custom-minutes" min="1" max="10080" placeholder="Minutes" style="width: 100px;">
+            <span style="color: var(--text-muted); font-size: 0.85rem;">minutes</span>
+          </div>
+          <span class="field-hint" style="display:block;margin-top:4px;">Backups are saved to the <code>backups</code> folder.</span>
+        </div>
+
+        <!-- App Updates -->
+        <div class="form-group">
+          <label>App Updates</label>
+          <label class="checkbox-row" for="input-auto-update-check">
+            <input type="checkbox" id="input-auto-update-check" checked>
+            <span>Check for updates on launch</span>
+          </label>
+          <span class="field-hint" style="display:block;margin-top:4px;">When a newer release is available, ShadowMac shows a one-time notice with a link to download the installer. ShadowMac never updates itself without your click.</span>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+            <button id="btn-check-updates" class="secondary-button" type="button">Check for updates</button>
+            <span id="update-check-status" class="field-hint" style="margin:0;"></span>
+          </div>
+        </div>
+
+        <!-- System Instruction / Personality Prompt -->
+        <div class="form-group">
+           <label for="input-system-instruction" style="display:none">System Instruction (Personality)</label>
+           <textarea id="input-system-instruction" rows="5" style="display:none"></textarea>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="flex-direction:column;gap:12px;align-items:stretch;">
+        <button id="btn-save-settings" class="primary-button">Save Changes</button>
+        <p class="field-hint" style="text-align:center;margin:0;opacity:0.7;">
+          ShadowMac — a macOS port of
+          <a href="https://github.com/shadowdoggie/shadow-ai" target="_blank" rel="noopener" style="color:var(--accent-light);">Shadow AI by shadowdoggie</a>,
+          used under the AGPL-3.0 license.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glassmorphic Integrations Modal -->
+  <div id="integrations-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Workspace Integrations</h2>
+        <button id="btn-close-integrations" class="close-button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="field-hint" style="margin-top:0; font-size:0.95rem; color:var(--text-secondary);">
+          Connect ShadowMac to your Google Workspace account to enable automatic, fluid control of your Gmail, Google Calendar, and Google Drive files.
+        </p>
+
+        <!-- Google Integration Status Card -->
+        <div class="integration-card">
+          <div class="integration-card-header">
+            <div class="integration-card-title">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="color:#f75c4c;">
+                <path d="M12.24 10.285V13.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.578-7.859-8s3.53-8 7.859-8c2.46 0 4.105 1.025 5.047 1.926l2.427-2.334C18.155 2.222 15.432 1 12.24 1 6.033 1 1 6.033 1 12.24s5.033 11.24 11.24 11.24c6.478 0 10.793-4.537 10.793-10.986 0-.746-.08-1.32-.176-1.705H12.24z"/>
+              </svg>
+              Google Workspace
+            </div>
+            <div id="google-status-badge" class="integration-status-badge integration-disconnected">
+              <span class="status-dot" style="width:8px; height:8px; border-radius:50%; background:currentColor;"></span>
+              <span id="google-status-badge-text">Disconnected</span>
+            </div>
+          </div>
+
+          <div class="integration-status-label" id="google-status-details">
+            Status: Connection details not loaded.
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:0.5rem;">
+            <button id="btn-connect-google" class="secondary-button" style="flex:1;">Connect Google Account</button>
+            <button id="btn-disconnect-google" class="danger-button hidden" style="flex:1;">Disconnect</button>
+          </div>
+        </div>
+
+        <!-- Connection Instructions -->
+        <div class="form-group" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-light); border-radius:16px; padding:1.2rem; gap:12px;">
+          <label style="font-size:0.9rem; color:var(--text-primary); font-weight:600; text-transform:none;">Credentials Setup</label>
+          <p class="field-hint" style="margin:0; font-size:0.85rem; line-height:1.4;">
+            Paste the <strong>Client ID</strong> and <strong>Client secret</strong> from your Google Cloud OAuth client below. (Google no longer offers a JSON download for new clients.) Make sure the Redirect URL shown below is added to the client's Authorized redirect URIs.
+          </p>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:0.25rem;">
+            <input type="text" id="input-google-client-id" placeholder="Client ID (…apps.googleusercontent.com)" autocomplete="off">
+            <input type="text" class="masked-input" id="input-google-client-secret" placeholder="Client secret (GOCSPX-…)" autocomplete="off">
+            <button id="btn-save-google-credentials" class="secondary-button" type="button">Connect with Client ID + Secret</button>
+          </div>
+          <details style="margin-top:8px;">
+            <summary class="field-hint" style="cursor:pointer; font-size:0.8rem;">Have a JSON file instead? Import it</summary>
+            <div style="display:flex; gap:12px; margin-top:8px;">
+              <button id="btn-import-google-credentials" class="secondary-button" style="flex:1;">Import Credentials JSON</button>
+              <input id="input-google-credentials-file" type="file" accept=".json,application/json" class="hidden">
+            </div>
+          </details>
+          <div id="credentials-status-area" style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-top:4px;">
+            <span>Credentials Status:</span>
+            <span id="credentials-status-text" style="font-weight:600; color:#ff4757;">Checking...</span>
+          </div>
+        </div>
+
+        <!-- Guided, skippable step-by-step setup wizard -->
+        <details class="google-setup-wizard" id="google-setup-wizard">
+          <summary>📋 First time connecting Google? Step-by-step guide</summary>
+          <p class="field-hint" style="margin:0.5rem 0 0.75rem; font-size:0.85rem; line-height:1.5;">
+            Google features are <strong>optional</strong> — ShadowMac works fully without them. You'll
+            make your own free Google Cloud credentials (about 5–10 minutes, one time). Because the app
+            is yours, <strong>no Google verification is needed</strong>.
+          </p>
+          <ol class="google-setup-steps">
+            <li>
+              <strong>Create a Google Cloud project.</strong>
+              <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener noreferrer">Open project creator →</a>
+            </li>
+            <li>
+              <strong>Enable the APIs you want to use:</strong>
+              <a href="https://console.cloud.google.com/apis/library/gmail.googleapis.com" target="_blank" rel="noopener noreferrer">Gmail</a>,
+              <a href="https://console.cloud.google.com/apis/library/calendar-json.googleapis.com" target="_blank" rel="noopener noreferrer">Calendar</a>,
+              <a href="https://console.cloud.google.com/apis/library/people.googleapis.com" target="_blank" rel="noopener noreferrer">Contacts (People)</a>,
+              <a href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank" rel="noopener noreferrer">Drive</a>.
+            </li>
+            <li>
+              <strong>Configure the OAuth consent screen.</strong>
+              <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" rel="noopener noreferrer">Open consent screen →</a>
+              Choose <em>External</em>, fill the basic info, and under <em>Test users</em> add your own
+              Google email — this is what lets it work without Google verification.
+            </li>
+            <li>
+              <strong>Create an OAuth client.</strong>
+              <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Open credentials →</a>
+              Pick <em>Create credentials → OAuth client ID → Web application</em>. Under
+              <em>Authorized redirect URIs</em>, add this exact URL:
+              <span class="redirect-uri-row">
+                <input id="google-redirect-uri-display" type="text" readonly value="loading…" aria-label="Redirect URI to add in Google Cloud">
+                <button id="btn-copy-redirect-uri" class="secondary-button" type="button">Copy</button>
+              </span>
+            </li>
+            <li>
+              When the client is created, Google shows its <strong>Client ID</strong> and
+              <strong>Client secret</strong> — copy both and paste them into the
+              <em>Connect with Client ID + Secret</em> fields below. If the secret is hidden
+              (Google no longer lets you view it later), click <em>+ Add secret</em> to make a
+              fresh one and copy it immediately. (If you happened to get a JSON file, you can
+              use <em>Import Credentials JSON</em> instead.)
+            </li>
+          </ol>
+          <p class="field-hint google-unverified-note" style="font-size:0.83rem; line-height:1.5;">
+            ⚠️ The first time you connect, Google shows a <em>“Google hasn't verified this app”</em> screen.
+            That's normal for your own app — click <strong>Advanced → Go to ShadowMac (unsafe)</strong> to
+            continue. Only you can use it unless you choose to publish &amp; verify it yourself.
+          </p>
+        </details>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Onboarding / Welcome Modal (multi-step wizard) -->
+  <div id="onboarding-modal" class="modal-overlay hidden">
+    <div class="modal-card onboarding-card">
+      <div class="onboarding-logo">
+        <span class="pulse-ring"></span>
+        <span class="logo-dot-large"></span>
+      </div>
+
+      <div class="onboarding-steps" id="onboarding-steps">
+        <span class="onboarding-step-dot active" data-step="1"></span>
+        <span class="onboarding-step-dot" data-step="2"></span>
+        <span class="onboarding-step-dot" data-step="3"></span>
+        <span class="onboarding-step-dot" data-step="4"></span>
+      </div>
+
+      <!-- STEP 1: Welcome + Gemini key -->
+      <div class="onboarding-step" data-step="1">
+        <h2 class="onboarding-title">Meet ShadowMac</h2>
+        <p class="onboarding-description">
+          ShadowMac is a voice-first AI companion. Talk to it naturally, in real time, in any language.
+          Let's get you set up &mdash; it takes about a minute.
+        </p>
+        <div class="form-group onboarding-key-group">
+          <label for="onboarding-api-key">Enter your Gemini API key to begin:</label>
+          <input type="text" class="masked-input" id="onboarding-api-key" placeholder="AIzaSy..." autocomplete="off">
+          <span class="field-hint">Stored locally on this PC, never uploaded elsewhere. Get one free at <a href="https://aistudio.google.com/api-keys" target="_blank">Google AI Studio</a>. This one key powers ShadowMac's voice, web search, and Google features.</span>
+        </div>
+      </div>
+
+      <!-- STEP 2: Mic check -->
+      <div class="onboarding-step hidden" data-step="2">
+        <h2 class="onboarding-title">Check your mic</h2>
+        <p class="onboarding-description">Pick your microphone and say something &mdash; let's make sure ShadowMac can hear you.</p>
+        <div class="form-group">
+          <label for="onboarding-mic-device">Microphone</label>
+          <select id="onboarding-mic-device">
+            <option value="">Default microphone</option>
+          </select>
+        </div>
+        <div class="mic-check-meter" aria-hidden="true">
+          <div class="mic-check-meter-fill" id="onboarding-mic-meter-fill"></div>
+        </div>
+        <p class="field-hint mic-check-status" id="onboarding-mic-status">Say something to test your mic&hellip;</p>
+      </div>
+
+      <!-- STEP 3: Meet your voice (live carousel) -->
+      <div class="onboarding-step hidden" data-step="3">
+        <h2 class="onboarding-title">Meet your voice</h2>
+        <p class="onboarding-description">Talk to it, and use the arrows to find the voice you love.</p>
+        <div class="voice-carousel">
+          <button id="btn-voice-prev" class="voice-carousel-arrow" type="button" aria-label="Previous voice">&#10094;</button>
+          <div class="voice-orb" id="onboarding-voice-orb">
+            <span class="voice-orb-ring"></span>
+            <span class="voice-orb-core"></span>
+          </div>
+          <button id="btn-voice-next" class="voice-carousel-arrow" type="button" aria-label="Next voice">&#10095;</button>
+        </div>
+        <div class="voice-carousel-label">
+          <span class="voice-carousel-name" id="onboarding-voice-name">Leda</span>
+          <span class="voice-carousel-style" id="onboarding-voice-style">Youthful</span>
+        </div>
+        <p class="field-hint voice-carousel-hint" id="onboarding-voice-hint">Connecting&hellip;</p>
+        <select id="onboarding-voice" class="hidden"></select>
+        <div class="form-group">
+          <label for="onboarding-assistant-name">Assistant name</label>
+          <input type="text" id="onboarding-assistant-name" placeholder="ShadowMac" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="onboarding-user-name">Your name (optional)</label>
+          <input type="text" id="onboarding-user-name" placeholder="What should it call you?" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="onboarding-accent">Accent / speaking style</label>
+          <select id="onboarding-accent"></select>
+        </div>
+      </div>
+
+      <!-- STEP 4: Background helpers (subagents) -->
+      <div class="onboarding-step hidden" data-step="4">
+        <h2 class="onboarding-title">Background helpers</h2>
+        <p class="onboarding-description">
+          ShadowMac can spin up <strong>subagents</strong> for multi-step work in the background &mdash; research, coding, file tasks, and more.
+          By default they run on your Gemini key (which also powers ShadowMac's voice, web search, and Google features) &mdash; so there's nothing to set up. Prefer a different model? Pick another provider below and its API key field appears right here.
+        </p>
+        <div class="form-group">
+          <label for="onboarding-subagent-provider">Subagent provider</label>
+          <select id="onboarding-subagent-provider"></select>
+        </div>
+        <div class="form-group hidden" id="onboarding-subagent-endpoint-group">
+          <label for="onboarding-subagent-endpoint">Server URL</label>
+          <input type="text" id="onboarding-subagent-endpoint" placeholder="http://localhost:1234/v1" autocomplete="off">
+          <span class="field-hint" id="onboarding-subagent-endpoint-hint">Use at least ~8,000 tokens of context on the server &mdash; ShadowMac's subagent prompt is large, so tiny contexts fail.</span>
+        </div>
+        <div class="form-group hidden" id="onboarding-subagent-key-group">
+          <label for="onboarding-subagent-key" id="onboarding-subagent-key-label">API key</label>
+          <input type="text" class="masked-input" id="onboarding-subagent-key" placeholder="Enter API key" autocomplete="off">
+        </div>
+
+        <!-- OpenAI Codex one-time sign-in (openai_codex) -->
+        <div class="form-group hidden" id="onboarding-codex-group">
+          <label>OpenAI Codex Login</label>
+          <div class="codex-auth-row">
+            <div id="onboarding-codex-badge" class="integration-status-badge integration-disconnected">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span id="onboarding-codex-status-text">Disconnected</span>
+            </div>
+            <button id="btn-onboarding-codex-login" class="secondary-button" type="button">Login with Codex</button>
+          </div>
+          <span id="onboarding-codex-details" class="field-hint" style="display:block;margin-top:4px;">Opens a browser sign-in &mdash; complete it and come back; status updates automatically.</span>
+        </div>
+
+        <!-- Model selection (per provider) -->
+        <div class="form-group hidden" id="onboarding-model-group">
+          <label for="onboarding-subagent-model">Model</label>
+          <select id="onboarding-subagent-model"></select>
+          <input type="text" id="onboarding-subagent-model-text" class="hidden" list="onboarding-custom-models" placeholder="Model name (from your server)" autocomplete="off">
+          <datalist id="onboarding-custom-models"></datalist>
+          <div id="onboarding-detect-row" class="hidden">
+            <button id="btn-onboarding-detect-models" class="secondary-button" type="button">Detect models</button>
+            <span id="onboarding-model-status" class="field-hint" style="margin:0;"></span>
+          </div>
+        </div>
+
+        <p class="field-hint" id="onboarding-subagent-info" style="margin-top:4px;"></p>
+
+        <!-- Forced subagent connection test: must pass before finishing so the user never lands in
+             a half-broken setup. Gemini default auto-passes (its key is validated by the voice step). -->
+        <div class="subagent-test-row" style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+          <button id="btn-onboarding-test-subagent" class="secondary-button" type="button">Test connection</button>
+          <span id="onboarding-subagent-test-status" class="field-hint" style="margin:0;"></span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="onboarding-nav">
+        <button id="btn-onboard-back" class="secondary-button hidden" type="button">Back</button>
+        <button id="btn-onboard-next" class="primary-button" type="button">Next</button>
+        <button id="btn-get-started" class="primary-button large-button hidden">Initialize ShadowMac</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Missing-credential Prompt Modal Overlay -->
+  <div id="credential-modal" class="modal-overlay hidden">
+    <div class="modal-card credential-card">
+      <div class="modal-header">
+        <h2 id="credential-modal-title">API key needed</h2>
+        <button id="btn-close-credential" class="close-button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="credential-modal-message">An API key is required to continue.</p>
+        <div class="credential-actions">
+          <button id="btn-credential-open-settings" class="primary-button" type="button">Open Settings</button>
+          <a id="btn-credential-get-key" class="secondary-button credential-get-key" target="_blank" rel="noopener noreferrer">Get your key &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update-available toast (notify + one-click download; never auto-applies) -->
+  <div id="update-toast" class="update-toast hidden">
+    <div class="update-toast-body">
+      <span class="update-toast-icon" aria-hidden="true">&#9650;</span>
+      <div class="update-toast-text">
+        <strong id="update-toast-title">Update available</strong>
+        <span id="update-toast-subtitle">A newer version of ShadowMac is ready.</span>
+      </div>
+    </div>
+    <div class="update-toast-actions">
+      <a id="btn-update-now" class="primary-button" target="_blank" rel="noopener noreferrer">Update</a>
+      <button id="btn-update-later" class="secondary-button" type="button">Later</button>
+    </div>
+  </div>
+
+  <!-- Skills Manager Modal Overlay -->
+  <div id="skills-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Self-Learned Skills</h2>
+        <button id="btn-close-skills" class="close-button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="field-hint" style="margin-top:0;">
+          Reusable workflows ShadowMac has taught itself. Review them, expand to read the steps,
+          and delete any you don't want it to keep.
+        </p>
+        <div id="skills-list" class="skills-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-wipe-skills" class="danger-button">Wipe All Skills</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Memory Graph Modal Overlay -->
+  <div id="memory-modal" class="modal-overlay hidden">
+    <div class="modal-card graph-card">
+      <div class="modal-header">
+        <h2 id="memory-modal-title">ShadowMac's Memory Network</h2>
+        <button id="btn-close-memory" class="close-button">&times;</button>
+      </div>
+      <div class="modal-body graph-body">
+        <p class="graph-instructions">Hover nodes for details. Drag empty space to pan, scroll to zoom, and double-click a node to delete it.</p>
+        <div class="graph-container">
+          <div id="memory-graph-canvas" class="memory-network" aria-label="ShadowMac memory network"></div>
+          <div id="graph-tooltip" class="graph-tooltip hidden"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-reset-memories" class="danger-button">Wipe All Memories</button>
+        <button id="btn-factory-reset" class="danger-button" style="margin-left: 10px; background: rgba(200, 0, 0, 0.3); border-color: rgba(255, 50, 50, 0.4);">Factory Reset Everything</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirmation Modal Overlay -->
+  <div id="confirm-modal" class="modal-overlay hidden" style="z-index: 200;">
+    <div class="modal-card" style="max-width: 400px; background: rgba(22, 14, 13, 0.95); border: 1px solid rgba(255, 255, 255, 0.08);">
+      <div class="modal-header" style="padding: 1.2rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+        <h2 id="confirm-title" style="font-size: 1.2rem;">Confirm Action</h2>
+        <button id="btn-close-confirm" class="close-button" style="font-size: 1.6rem;">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem; max-height: none;">
+        <p id="confirm-message" style="color: var(--text-secondary); line-height: 1.5; margin: 0; font-size: 0.95rem;"></p>
+      </div>
+      <div class="modal-footer" style="padding: 1rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.06); gap: 12px; display: flex; justify-content: flex-end;">
+        <button id="btn-confirm-cancel" class="secondary-button" style="padding: 8px 16px; font-size: 0.9rem;">Cancel</button>
+        <button id="btn-confirm-ok" class="danger-button" style="padding: 8px 16px; font-size: 0.9rem;">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Hidden elements for screen capture and frame extraction -->
+  <video id="screen-video" autoplay playsinline style="display:none;"></video>
+  <canvas id="screen-canvas" style="display:none;"></canvas>
+
+  <script src="scripts/01-state-dom.js?v=release150b-20260530"></script>
+  <script src="scripts/02-boot-ui.js?v=release150b-20260530"></script>
+  <script src="scripts/03-screen-config.js?v=remove-ollama-local-20260530"></script>
+  <script src="scripts/04-audio.js?v=audio-stall-recovery-20260528"></script>
+  <script src="scripts/05-live-connection.js?v=remove-ollama-local-20260530"></script>
+  <script src="scripts/06-transcript.js?v=release-hardening-20260528"></script>
+  <script src="scripts/07-visualizer.js?v=fix-20260521"></script>
+  <script src="scripts/08-memory.js?v=steer-not-cancel-20260530"></script>
+  <script src="scripts/09-subagents-core.js?v=remove-ollama-local-20260530"></script>
+  <script src="scripts/10-scheduler-proactive.js?v=reboot-truth-20260528"></script>
+  <script src="scripts/11-subagents-runner.js?v=ctx-overflow-recovery-20260530"></script>
+  <script src="scripts/12-subagents-notifications.js?v=cred-prompt-20260529"></script>
+  <script src="scripts/13-google-workspace.js?v=upload-resilience-20260529"></script>
+  <script src="scripts/14-onboarding-voice.js?v=onboarding-voice-20260531"></script>
+</body>
+</html>
