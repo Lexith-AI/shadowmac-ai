@@ -6,6 +6,10 @@
 
 Hands-free real-time voice · long-term memory · web search · background subagents.
 
+<br>
+
+<img src="assets/screenshot.png" alt="ShadowMac — real-time voice AI companion on macOS" width="760">
+
 </div>
 
 ---
